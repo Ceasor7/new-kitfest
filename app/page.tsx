@@ -1,7 +1,27 @@
+import Faq from "@/components/faq/Faq";
+import LandingPage from "@/components/Hero/LandingPage";
+import Introduction from "@/components/Introduction";
+import FestivalOverview from "@/components/Overview/FestivalOverview";
+import FetivalStatScroll from "@/components/Stats/FetivalStatScroll";
+
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <h1 className=" text-2xl">Hellow world</h1>
+    <div className=" font-[family-name:var(--font-geist-sans)]">
+      <section>
+        <LandingPage />
+      </section>
+      <section>
+        <Introduction />
+      </section>
+      <section>
+        <FetivalStatScroll />
+      </section>
+      <section className=" mx-auto max-w-5xl">
+        <FestivalOverview />
+      </section>
+      <section className=" mx-auto max-w-5xl py-10">
+        <Faq />
+      </section>
     </div>
   );
 }

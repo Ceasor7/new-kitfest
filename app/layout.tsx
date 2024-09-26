@@ -5,6 +5,7 @@ import { siteConfig } from "@/config/site";
 import SiteHeader from "@/components/Header/SiteHeader";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ContactNav from "@/components/Header/ContactNav";
+import SiteFooter from "@/components/Footer/SiteFooter";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -45,6 +46,7 @@ export default function RootLayout({
           <ContactNav />
           <SiteHeader />
           {children}
+          <SiteFooter />
         </ThemeProvider>
       </body>
     </html>
