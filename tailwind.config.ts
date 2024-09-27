@@ -54,6 +54,7 @@ const config: Config = {
       backgroundImage: {
         intro1: 'url("/about/home1.jpeg")',
         about: 'url("/about/22home4.jpeg")',
+        about_knt: 'url("/about/knt.jpeg")',
         drum_light: 'url("/drum-light.svg")',
         drum_dark: 'url("/drum-dark.svg")',
       },
