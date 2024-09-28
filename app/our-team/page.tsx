@@ -7,7 +7,7 @@ const page = () => {
       <h2 className=" section-title mb-8 md:mb-16 text-center mx-auto">
         Festival Overview
       </h2>
-      <section>
+      <section className=" mx-auto max-w-5xl">
         <OurTeam />
       </section>
     </div>
