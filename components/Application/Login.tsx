@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import Link from "next/link";
 
 // Schema for form validation
 const loginSchema = z.object({
@@ -42,9 +43,8 @@ const Login = () => {
   const handleSubmit = (values: z.infer<typeof loginSchema>) => {
     console.log({ values });
   };
-
   return (
-    <Card className="max-w-[500px] mx-auto bg-white relative z-10">
+    <Card className="max-w-[500px] mx-auto bg-white">
       <CardHeader className="flex flex-col items-center text-center">
         <Image
           src="/kitfest-logo.svg"
@@ -98,10 +98,16 @@ const Login = () => {
           </form>
         </Form>
       </CardContent>
-      <CardFooter>
+      <CardFooter className=" flex flex-col gap-y-4">
         <Button type="submit" className="w-full">
           Login
         </Button>
+        <p>
+          Don&apos;t have an account?
+          <span className=" pl-1 text-[#005925]">
+            <Link href="/new-user">Sign Up</Link>
+          </span>
+        </p>
       </CardFooter>
     </Card>
   );

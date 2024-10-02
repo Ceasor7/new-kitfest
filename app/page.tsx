@@ -1,4 +1,5 @@
 import Faq from "@/components/faq/Faq";
+import SiteHeader from "@/components/Header/SiteHeader";
 import LandingPage from "@/components/Hero/LandingPage";
 import Introduction from "@/components/Introduction";
 import FestivalOverview from "@/components/Overview/FestivalOverview";
@@ -7,6 +8,7 @@ import FetivalStatScroll from "@/components/Stats/FetivalStatScroll";
 export default function Home() {
   return (
     <div className=" font-[family-name:var(--font-geist-sans)]">
+      <SiteHeader />
       <section>
         <LandingPage />
       </section>

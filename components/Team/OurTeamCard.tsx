@@ -15,9 +15,9 @@ const OurTeamCard = ({ imgPath, teamName, teamTitle }: Props) => {
         <Image
           src={imgPath}
           alt={teamName}
-          width={120}
+          width={200}
           height={160}
-          className="rounded-full mb-4"
+          className=" rounded-md mb-4"
         />
         <h2 className="text-xl font-semibold">{teamName}</h2>
         <CardDescription>{teamTitle}</CardDescription>

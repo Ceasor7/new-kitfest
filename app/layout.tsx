@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
-import SiteHeader from "@/components/Header/SiteHeader";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import ContactNav from "@/components/Header/ContactNav";
 import SiteFooter from "@/components/Footer/SiteFooter";
 
 const geistSans = localFont({
@@ -43,8 +41,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="light">
-          <ContactNav />
-          <SiteHeader />
           {children}
           <SiteFooter />
         </ThemeProvider>
