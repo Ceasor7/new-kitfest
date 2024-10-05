@@ -6,11 +6,6 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import {
   Form,
   FormControl,
@@ -18,33 +13,74 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { LoginSchema } from "@/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-// Schema for form validation
-const loginSchema = z.object({
-  emailAddress: z.string().email({
-    message: "Invalid email address.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
-});
+type LoginFormData = z.infer<typeof LoginSchema>;
 
 const Login = () => {
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+  const { data: session, status: sessionStatus } = useSession();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
-      emailAddress: "",
+      email: "",
       password: "",
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof loginSchema>) => {
-    console.log({ values });
+  useEffect(() => {
+    if (sessionStatus === "authenticated") {
+      router.replace("/application");
+    }
+  }, [sessionStatus, router]);
+
+  const onSubmit = async (data: LoginFormData) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
+
+      if (res?.error) {
+        setError("Invalid email or password");
+      } else if (res?.url) {
+        router.replace("/dashboard");
+      } else {
+        setError("");
+      }
+    } catch (error) {
+      setError("Error, try again");
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const { pending } = useFormStatus();
+
+  if (sessionStatus === "loading") {
+    return <h1>Loading...</h1>;
+  }
+
   return (
-    <Card className="max-w-[500px] mx-auto bg-white">
+    <Card className="max-w-[500px] mx-auto shadow-md bg-white">
       <CardHeader className="flex flex-col items-center text-center">
         <Image
           src="/kitfest-logo.svg"
@@ -57,51 +93,51 @@ const Login = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="flex flex-col gap-y-6"
-          >
-            <FormField
-              control={form.control}
-              name="emailAddress"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="example@mail.com"
-                      type="email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Your password"
-                      type="password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="johndoe@gmail.com"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="password" placeholder="******" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            {error && <p className="text-red-500">{error}</p>}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={pending || loading}
+            >
+              {loading ? "Loading..." : "Login"}
+            </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className=" flex flex-col gap-y-4">
-        <Button type="submit" className="w-full">
-          Login
-        </Button>
         <p>
           Don&apos;t have an account?
           <span className=" pl-1 text-[#005925]">

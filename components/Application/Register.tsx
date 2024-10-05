@@ -7,7 +7,6 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -19,78 +18,56 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useFormStatus } from "react-dom";
+import { z } from "zod";
+import { RegisterSchema } from "@/schema";
 import Link from "next/link";
-import axios from "axios";
-import { useEffect, useState } from "react";
 
-// Schema for form validation
-const registerSchema = z.object({
-  fullName: z.string().min(1, {
-    message: "Full Name is required.",
-  }),
-  country: z.string().min(1, {
-    message: "Country is required.",
-  }),
-  phoneNumber: z.string().min(1, {
-    message: "Phone Number is required.",
-  }),
-  emailAddress: z.string().email({
-    message: "Invalid email address.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
-  confirmPassword: z
-    .string()
-    .min(6, {
-      message: "Confirm Password is required.",
-    })
-    .refine((val, ctx) => {
-      if (val !== ctx.parent.password) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Passwords must match.",
-        });
-      }
-      return true;
-    }),
-});
+type RegisterData = z.infer<typeof RegisterSchema>;
 
 const Register = () => {
-  const [countries, setCountries] = useState<string[]>([]);
-  const [countryCode, setCountryCode] = useState<string>("");
-  const form = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const form = useForm<RegisterData>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
-      fullName: "",
-      country: "",
-      phoneNumber: "",
-      emailAddress: "",
+      email: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof registerSchema>) => {
-    console.log({ values });
+  const onSubmit = async (data: RegisterData) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (res.status === 400) {
+        setError("This email is already registered");
+      } else if (res.status === 200) {
+        router.push("/festival");
+      } else {
+        setError("Error, try again");
+      }
+    } catch (error) {
+      setError("Error, try again");
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Fetch the list of countries on component mount
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const response = await axios.get("https://restcountries.com/v3.1/all");
-        const countryNames = response.data.map(
-          (country: any) => country.name.common
-        );
-        setCountries(countryNames);
-      } catch (error) {
-        console.error("Error fetching countries", error);
-      }
-    };
-
-    fetchCountries();
-  }, []);
+  const { pending } = useFormStatus();
 
   return (
     <Card className="max-w-[500px] mx-auto bg-white">
@@ -106,120 +83,59 @@ const Register = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="flex flex-col gap-y-6"
-          >
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your Full Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <select
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setCountryCode(e.target.value); // Get country code based on the selected country
-                      }}
-                      className="w-full p-2 border rounded"
-                    >
-                      <option value="">Select Country</option>
-                      {countries.map((country) => (
-                        <option key={country} value={country}>
-                          {country}
-                        </option>
-                      ))}
-                    </select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phoneNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Your Phone Number"
-                      type="tel"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="emailAddress"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="example@mail.com"
-                      type="email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Your password"
-                      type="password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Confirm your password"
-                      type="password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full">
-              Register
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="fullname"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="text" placeholder="John Doe" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="johndoe@gmail.com"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="password" placeholder="******" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            {error && <p className="text-red-500">{error}</p>}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={pending || loading}
+            >
+              {loading ? "Loading..." : "Register"}
             </Button>
           </form>
         </Form>

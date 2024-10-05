@@ -1,15 +1,17 @@
-import Login from "@/components/Application/Login";
+import SiteHeader from "@/components/Header/SiteHeader";
+import SubHeader from "@/components/Header/SubHeader";
 import React from "react";
 
 type Props = {};
 
-const Page = (props: Props) => {
+const page = (props: Props) => {
   return (
-    <div className="relative py-12 mx-auto max-w-5xl overflow-hidden">
-      <div className="absolute inset-0 bg-gray-100 dark:bg-transparent blur-md" />
-      <Login />
+    <div>
+      <SiteHeader />
+      <SubHeader title=" Application for KITFest 2025" />
+      <div className=" max-w-5xl mx-auto py-40 min-h-screen">Hello World</div>
     </div>
   );
 };
 
-export default Page;
+export default page;
